@@ -4,7 +4,7 @@ const client = new Client({
     connectionString:"postgresql://postgres:CoderData6@localhost/postgres"
 })
 
-
+//function to create user table
 async function createUsersTable(){
 
    try{
@@ -81,5 +81,48 @@ try{
 }
 }
 
+//relationships and transactions
+//foregin key
+async function addressTable() {
+    try{
+        await client.connect();
+        const result = await client.query(`
+            CREATE TABLE addresses (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            country VARCHAR(100) NOT NULL,
+            pincode INTEGER,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );`)
+        console.log("address table created ",result)
+    }
+    catch(err){
+        console.log("error while creating address table",err)
+    }
+    finally{
+        client.end();
+    }
+}
 
-    getuserData("wow");
+async function insertAddress(user_id:Number, city:string, country:string,pincode:Number) {
+    try{
+        await client.connect();
+        const query = 'INSERT INTO addresses (user_id,city,country,pincode) VALUES($1,$2,$3,$4)';
+        const values = [user_id,city,country,pincode];
+        const result =  await client.query(query,values);
+        console.log("data inserted in addresss ",result);
+    }
+    catch(err){
+        console.log("error while inserting address",err);
+    }
+    finally{
+        client.end();
+    }
+}
+
+// insertAddress(3,"sultanpuri","INDIA",45234);
+
+
+

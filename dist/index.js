@@ -13,6 +13,7 @@ const pg_1 = require("pg");
 const client = new pg_1.Client({
     connectionString: "postgresql://postgres:CoderData6@localhost/postgres"
 });
+//function to create user table
 function createUsersTable() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -94,4 +95,46 @@ function getuserData(name) {
         }
     });
 }
-getuserData("wow");
+//relationships and transactions
+function addressTable() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield client.connect();
+            const result = yield client.query(`
+            CREATE TABLE addresses (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            country VARCHAR(100) NOT NULL,
+            pincode INTEGER,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );`);
+            console.log("address table created ", result);
+        }
+        catch (err) {
+            console.log("error while creating address table", err);
+        }
+        finally {
+            client.end();
+        }
+    });
+}
+function insertAddress(user_id, city, country, pincode) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield client.connect();
+            const query = 'INSERT INTO addresses (user_id,city,country,pincode) VALUES($1,$2,$3,$4)';
+            const values = [user_id, city, country, pincode];
+            const result = yield client.query(query, values);
+            console.log("data inserted in addresss ", result);
+        }
+        catch (err) {
+            console.log("error while inserting address", err);
+        }
+        finally {
+            client.end();
+        }
+    });
+}
+insertAddress(3, "sultanpuri", "INDIA", 45234);
