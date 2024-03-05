@@ -24,7 +24,7 @@ async function createUsersTable(){
    catch(err){
     console.log("err while creating table",err);
    }finally{
-    client.end();
+  await  client.end();
    }
     
 }
@@ -56,7 +56,8 @@ async function  moreSecureWayToInsertData () {
     }catch(err){
         console.log("err in more secure insert data func",err);
     }finally{
-        client.end();
+        await  client.end();
+
     }
 }
 
@@ -77,12 +78,12 @@ try{
 }catch(err){
     console.log("err while fetching user data",err);
 }finally{
-    client.end();
+    await  client.end();
+
 }
 }
 
-//relationships and transactions
-//foregin key
+//relationships -> using foreign key
 async function addressTable() {
     try{
         await client.connect();
@@ -102,7 +103,8 @@ async function addressTable() {
         console.log("error while creating address table",err)
     }
     finally{
-        client.end();
+        await  client.end();
+
     }
 }
 
@@ -118,11 +120,41 @@ async function insertAddress(user_id:Number, city:string, country:string,pincode
         console.log("error while inserting address",err);
     }
     finally{
-        client.end();
+        await  client.end();
     }
 }
 
 // insertAddress(3,"sultanpuri","INDIA",45234);
 
+
+//Joins
+//used to join the 2 tables having some relation between them
+//if we have to fetch the user data and its address
+//approach 1, we can fetch it by SELECT QUERY one by one but by using joins we can fetch them in single query
+
+async function  fetchUserDataWithAddress (userId:Number){
+    try{
+        await client.connect();
+        const query:string = `SELECT users.username, users.email, addresses.city, addresses.country, addresses.pincode FROM users LEFT JOIN addresses
+         ON users.id = addresses.user_id WHERE users.id=$1;` 
+        const value:Number[] = [userId];
+        const result = await client.query(query,value);
+        if(result.rows.length>0){
+            console.log("data found",result.rows);
+        }
+        else{
+            console.log("data not found");
+        }
+    }
+    catch(err){
+        console.log("error while fetching user data with address",err);
+    }
+    finally{
+        await  client.end();
+
+    }
+}
+
+fetchUserDataWithAddress(3);
 
 

@@ -33,7 +33,7 @@ function createUsersTable() {
             console.log("err while creating table", err);
         }
         finally {
-            client.end();
+            yield client.end();
         }
     });
 }
@@ -68,7 +68,7 @@ function moreSecureWayToInsertData() {
             console.log("err in more secure insert data func", err);
         }
         finally {
-            client.end();
+            yield client.end();
         }
     });
 }
@@ -91,11 +91,11 @@ function getuserData(name) {
             console.log("err while fetching user data", err);
         }
         finally {
-            client.end();
+            yield client.end();
         }
     });
 }
-//relationships and transactions
+//relationships -> using foreign key
 function addressTable() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -116,7 +116,7 @@ function addressTable() {
             console.log("error while creating address table", err);
         }
         finally {
-            client.end();
+            yield client.end();
         }
     });
 }
@@ -133,8 +133,36 @@ function insertAddress(user_id, city, country, pincode) {
             console.log("error while inserting address", err);
         }
         finally {
-            client.end();
+            yield client.end();
         }
     });
 }
-insertAddress(3, "sultanpuri", "INDIA", 45234);
+// insertAddress(3,"sultanpuri","INDIA",45234);
+//Joins
+//used to join the 2 tables having some relation between them
+//if we have to fetch the user data and its address
+//approach 1, we can fetch it by SELECT QUERY one by one but by using joins we can fetch them in single query
+function fetchUserDataWithAddress(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield client.connect();
+            const query = `SELECT users.username, users.email, addresses.city, addresses.country, addresses.pincode FROM users LEFT JOIN addresses
+         ON users.id = addresses.user_id WHERE users.id=$1;`;
+            const value = [userId];
+            const result = yield client.query(query, value);
+            if (result.rows.length > 0) {
+                console.log("data found", result.rows);
+            }
+            else {
+                console.log("data not found");
+            }
+        }
+        catch (err) {
+            console.log("error while fetching user data with address", err);
+        }
+        finally {
+            yield client.end();
+        }
+    });
+}
+fetchUserDataWithAddress(3);
