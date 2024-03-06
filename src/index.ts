@@ -128,8 +128,11 @@ async function insertAddress(user_id:Number, city:string, country:string,pincode
 
 
 //Joins
+//right join=> to return all rows from right table
+//left join=> to return all rows from left table
+//full join=> to return all rows from both tables
 //used to join the 2 tables having some relation between them
-//if we have to fetch the user data and its address
+//if we have to fetch the user data with its address we can do it using join
 //approach 1, we can fetch it by SELECT QUERY one by one but by using joins we can fetch them in single query
 
 async function  fetchUserDataWithAddress (userId:Number){
@@ -155,6 +158,13 @@ async function  fetchUserDataWithAddress (userId:Number){
     }
 }
 
-fetchUserDataWithAddress(3);
+// fetchUserDataWithAddress(3);
+
+//transactions
+//It is used to do multiple db operations in a single logical operations
+//or we can say that it can be usefull to do multiple operations in single request 
+//in simple word we can say that transactions is a way to do the multiple db operations in single 
+//request or logic no need to connect client again & again 
+//to use this we have to use the query BEGIN -> to start the transactions and to commit that all transactions  at end we use 'COMMIT';
 
 
